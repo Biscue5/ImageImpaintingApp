@@ -38,6 +38,7 @@ def make_batch(image, mask, device, img_size=512):
     return batch
 
 def inpaintin_image(image, mask, steps=2):
+    width, height = image.size
     config = OmegaConf.load("models/ldm/inpainting_big/config.yaml")
     model = instantiate_from_config(config.model)
     model.load_state_dict(torch.load("models/ldm/inpainting_big/last.ckpt")["state_dict"],
@@ -69,7 +70,7 @@ def inpaintin_image(image, mask, steps=2):
             inpainted = (1-mask)*image+mask*predicted_image
             inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
             inpainted = Image.fromarray(inpainted.astype(np.uint8))
-
+            inpainted = inpainted.resize((width, height))
     return inpainted
 
 app = FastAPI()
@@ -113,6 +114,7 @@ def create_user(user: User):
     mask = Image.open(io.BytesIO(mask))
 
     inpainted_img = inpaintin_image(img, mask)
+
 
     with io.BytesIO() as output:
         inpainted_img.save(output, format='PNG')
