@@ -1,0 +1,3 @@
+[submodule "WebApp-react"]
+	path = WebApp-react
+	url = https://github.com/Biscue5/WebApp-react.git
